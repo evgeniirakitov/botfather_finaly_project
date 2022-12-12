@@ -1,12 +1,10 @@
-from datetime import datetime
+import datetime
 from typing import List
 
+import sqlalchemy as sa
 from aiogram import Dispatcher
 from gino import Gino
-import sqlalchemy as sa
-from sqlalchemy import Column, Integer, String, DateTime
-
-from tgbot.config import load_config
+from sqlalchemy import Column, DateTime
 
 db = Gino()
 
@@ -17,7 +15,7 @@ class BaseModel(db.Model):
     def __str__(self):
         model = self.__class__.__name__
         table: sa.Table = sa.inspect(self.__class__)
-        primary_key_columns: List[sa.Column] = table.primary_key.columns
+        primary_key_columns: List[sa.Column] = table.columns
         values = {
             column.name: getattr(self, self._column_name_map[column.name])
             for column in primary_key_columns
@@ -38,7 +36,12 @@ class TimedBaseModel(BaseModel):
     )
 
 
-async def on_startup(dispatcher: Dispatcher):
-    print("Установка связи с postgresql")
-    db_config = load_config(".env").db
-    await db.set_bind(f"postgresql://{db_config.user}:{db_config.password}@{db_config.database}")
+async def on_startup(dispatcher: Dispatcher, url: str):
+    print(f"Установка связи с postgresql\nurl={url}")
+    await db.set_bind(url)
+
+
+async def on_shutdown(dispatcher: Dispatcher):
+    bind = db.pop_bind()
+    if bind:
+        await bind.close()

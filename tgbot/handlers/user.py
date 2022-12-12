@@ -18,7 +18,7 @@ async def user_start(message: Message):
 
 async def user_start_deeplink(message: Message):
     name = message.from_user.first_name
-    referer = message.get_args()
+    referrer = message.get_args()
     await message.answer(text=f"Hello, {name}!\n"
                               f" Приветствую тебя в нашем магазине",
                          reply_markup=create_user_start_keyboard())

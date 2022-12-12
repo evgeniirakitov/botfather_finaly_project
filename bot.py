@@ -11,6 +11,10 @@ from tgbot.handlers.admin import register_admin
 from tgbot.handlers.not_referer import register_echo
 from tgbot.handlers.user import register_user
 from tgbot.middlewares.environment import EnvironmentMiddleware
+from tgbot.models import db_gino
+from tgbot.inline.inline import register_inline_query
+from tgbot.models.commands import sql_init_commands
+from tgbot.models.db_gino import db
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +28,7 @@ def register_all_filters(dp):
 
 
 def register_all_handlers(dp):
+    register_inline_query(dp)
     register_admin(dp)
     register_user(dp)
 
@@ -48,10 +53,16 @@ async def main():
     register_all_filters(dp)
     register_all_handlers(dp)
 
+    url = f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}:{config.db.port}/{config.db.database}"
+
+
     # start
     try:
+        logger.info("Подключаемся к базе данных")
+        await db_gino.on_startup(dp, url)
         await dp.start_polling()
     finally:
+        await db_gino.on_shutdown(dp)
         await dp.storage.close()
         await dp.storage.wait_closed()
         await bot.session.close()
