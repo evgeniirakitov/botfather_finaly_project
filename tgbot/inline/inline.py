@@ -4,25 +4,45 @@ import typing
 from aiogram import types, Dispatcher
 from aiogram.types import InlineQueryResultArticle, InlineKeyboardButton, MessageEntity
 
-from tgbot.models.commands import item_commands
+from tgbot.models.commands import item_commands, user_commands
 from tgbot.models.table import Item
 
 
 async def empty_query(query: types.InlineQuery):
-    items = await item_commands.select_all_items()
-    await query.answer(
-        results=create_list_item(items),
-        cache_time=1
-    )
+    if await user_commands.select_user(query.from_user.id) is not None:
+        items = await item_commands.select_first_two_items()
+        await query.answer(
+            results=create_list_item(items),
+            cache_time=1
+        )
+
+    else:
+        await query.answer(
+            results=[],
+            cache_time=5,
+            switch_pm_text="Бот не доступен, пожалуйста авторизуйтесь",
+            switch_pm_parameter="connect_user"
+        )
+        return
 
 
 async def select_items(query: types.InlineQuery):
-    items = await item_commands.select_items_by_name(query.query)
+    if await user_commands.select_user(query.from_user.id) is not None:
+        items = await item_commands.select_items_by_name(query.query)
 
-    await query.answer(
-        results=create_list_item(items),
-        cache_time=5
-    )
+        await query.answer(
+            results=create_list_item(items),
+            cache_time=5
+        )
+
+    else:
+        await query.answer(
+            results=[],
+            cache_time=5,
+            switch_pm_text="Бот не доступен, пожалуйста авторизуйтесь",
+            switch_pm_parameter="connect_user"
+        )
+        return
 
 
 def register_inline_query(dp: Dispatcher):
@@ -35,17 +55,17 @@ def create_list_item(item_list: list[Item]):
         id=item.id,
         title=item.name,
         thumb_url=item.photo_url,
-        description=item.description,
-        input_message_content=types.InputMessageContent(
-            message_text=f"<i src=\"{item.photo_url}\" alt=\"Эйфелева башня\" title=\"Эйфелева башня\"/>",
-            parse_mode="HTML",
+        description=f"{item.price} руб",
+        input_message_content=types.InputTextMessageContent(
+            message_text=f"<a href=\"{item.photo_url}\">ноут</a>",
+            parse_mode="HTML"
         ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="Regbnm",
-                        url="https://t.me/joinchat",
+                        text="Показать товар",
+                        url=f"https://t.me/finaly_rakitov_bot?start=item{item.id}"
                     )
                 ]
             ]

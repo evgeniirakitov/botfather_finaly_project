@@ -27,10 +27,22 @@ async def select_all_user():
     return users
 
 
+async def select_referrals(id: int):
+    users = await User.query.where(User.referrer == id).gino.all()
+
+    return users
+
+
 async def select_user(id: int):
     user = await User.query.where(User.id == id).gino.first()
 
     return user
+
+
+async def get_balance(id: int):
+    user = await User.query.where(User.id == id).gino.first()
+
+    return user.balance
 
 
 async def count_users():

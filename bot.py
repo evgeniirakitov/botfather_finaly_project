@@ -60,6 +60,16 @@ async def main():
     try:
         logger.info("Подключаемся к базе данных")
         await db_gino.on_startup(dp, url)
+
+        logger.info("Очищаем таблицы")
+        await db_gino.db.gino.drop_all()
+
+        logger.info("Создаем таблицы")
+        await db_gino.db.gino.create_all()
+
+        logger.info("Создаем админа и вносим тестовые товары")
+        await sql_init_commands.sql_init()
+
         await dp.start_polling()
     finally:
         await db_gino.on_shutdown(dp)

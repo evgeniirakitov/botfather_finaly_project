@@ -22,6 +22,7 @@ class TgBot:
 
 @dataclass
 class Miscellaneous:
+    provider_token: str
     other_params: str = None
 
 
@@ -40,7 +41,7 @@ def load_config(path: str = None):
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN"),
             admin_ids=list(map(int, env.list("ADMINS"))),
-            use_redis=env.bool("USE_REDIS"),
+            use_redis=env.bool("USE_REDIS")
         ),
         db=DbConfig(
             host=env.str('DB_HOST'),
@@ -49,5 +50,7 @@ def load_config(path: str = None):
             database=env.str('DB_NAME'),
             port=env.str('DB_PORT')
         ),
-        misc=Miscellaneous()
+        misc=Miscellaneous(
+            provider_token=env.str("PROVIDER_TOKEN")
+        )
     )

@@ -11,7 +11,7 @@ class User(TimedBaseModel):
     user_name = db.Column(String(100))
     email = db.Column(String(100))
 
-    referrer = db.Column(db.BigInteger, db.ForeignKey('users.id'))
+    referrer = db.Column(db.BigInteger, nullable=False)
 
     balance = db.Column(db.BigInteger, nullable=True)
 

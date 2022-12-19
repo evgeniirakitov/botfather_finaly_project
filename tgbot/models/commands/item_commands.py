@@ -31,7 +31,7 @@ async def select_item(id: int):
 
     :param id: The id of the item to select.
     """
-    item = await Item.get(Item.id == id)
+    item = await Item.get(id)
 
     return item
 
