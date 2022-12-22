@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  db:
+  db_bot:
     container_name: database
     image: sameersbn/postgresql:10-2
     environment:
@@ -13,6 +13,8 @@ services:
       - 5432:5432
     networks:
       - tg_bot
+    volumes:
+      - ./postgres:/var/lib/postgres
 
   bot:
     image: "${BOT_IMAGE_NAME:-tg_bot-image}"
@@ -28,7 +30,9 @@ services:
     env_file:
       - ".env"
     networks:
-    - tg_bot
+      - tg_bot
+    depends_on:
+      - db_bot
 
 
 networks:

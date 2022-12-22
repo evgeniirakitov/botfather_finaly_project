@@ -69,7 +69,7 @@ async def enter_name(message: Message, state: FSMContext):
 
 
 async def enter_photo(message: Message, state: FSMContext):
-    photo_url = message.photo[-1].file_id
+    photo_url = message.text
     data = await state.get_data()
     item: Item = data.get("item")
     item.photo_url = photo_url
@@ -113,7 +113,7 @@ async def enter_quantity(message: Message, state: FSMContext):
         caption=f"Название: {item.name}\n"
                 f"Описание: {item.description}\n"
                 f"Колличество: {item.quantity}\n"
-                f"Пришлите мне количество товара, или нажмите /cancel"
+                f"Пришлите мне стоимость товара, или нажмите /cancel"
     )
     await NewItem.Price.set()
     await state.update_data(item=item)
@@ -196,7 +196,7 @@ def register_admin(dp: Dispatcher):
     dp.register_callback_query_handler(change_price, text_contains="change", state=NewItem.Confirm, is_admin=True)
     dp.register_callback_query_handler(confirm_price, text_contains="confirm", state=NewItem.Confirm, is_admin=True)
     dp.register_message_handler(enter_name, state=NewItem.Name, is_admin=True)
-    dp.register_message_handler(enter_photo, state=NewItem.Photo, content_types=ContentType.PHOTO, is_admin=True)
+    dp.register_message_handler(enter_photo, state=NewItem.Photo, is_admin=True)
     dp.register_message_handler(enter_description, state=NewItem.Description, is_admin=True)
     dp.register_message_handler(enter_quantity, state=NewItem.Quantity, is_admin=True)
     dp.register_message_handler(enter_price, state=NewItem.Price, is_admin=True)
