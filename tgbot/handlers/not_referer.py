@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.utils.deep_linking import get_start_link
 
 from tgbot.keyboards.callback_dates import referral_callback
+from tgbot.keyboards.inline import create_admin_start_keyboard
 from tgbot.misc.states import OurState
 from tgbot.models.commands import user_commands
 
@@ -20,19 +21,9 @@ async def send_deeplink(message: types.Message, state: FSMContext):
     code = message.text
     link = await get_start_link(payload=code)
     if await user_commands.select_user(int(code)) is not None:
-        await message.answer(
-            text="Перейдите по ссылке:",
-            reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[
-                    [
-                        types.InlineKeyboardButton(
-                            text="Зарегистрироваться",
-                            url=link,
-                        )
-                    ]
-                ]
-            )
-        )
+        await message.answer(text=f"Hello, {message.from_user.first_name}!\n"
+                                  f" Приветствую тебя в нашем магазине",
+                             reply_markup=create_admin_start_keyboard())
     else:
         await message.answer("Вы ввели не корректный код приглашения")
 

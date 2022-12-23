@@ -178,7 +178,7 @@ async def adding_cancel(message: Message, state: FSMContext):
             inline_keyboard=[
                 [InlineKeyboardButton(
                     text="Выйти в главное меню?",
-                    url=f"https://t.me/finaly_rakitov_bot?start={message.from_user.id}"
+                    reply_markup=create_admin_start_keyboard()
                 )]
             ]
         )
