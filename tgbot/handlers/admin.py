@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, ContentType, InlineKeyboardMarkup, InlineKeyboardButton
 
 from tgbot.handlers import handlers_helper
-from tgbot.keyboards.callback_dates import admin_callback, add_item_callback
+from tgbot.keyboards.callback_dates import admin_callback, add_item_callback, confirm_cancel_adding
 from tgbot.keyboards.inline import create_admin_start_keyboard, create_admin_panel_keyboard, \
     create_start_not_referer_keyboard
 from tgbot.misc.states import NewItem
@@ -174,14 +174,21 @@ async def confirm_price(call: CallbackQuery, state: FSMContext):
 async def adding_cancel(message: Message, state: FSMContext):
     await message.answer(
         text="Вы отменили создание товара",
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(
-                    text="Выйти в главное меню?",
-                    reply_markup=create_admin_start_keyboard()
-                )]
-            ]
-        )
+        reply_markup=InlineKeyboardMarkup(row_width=2,
+                                inline_keyboard=
+                                [
+                                    [
+                                        InlineKeyboardButton(
+                                            text="Да",
+                                            callback_data=confirm_cancel_adding.new()
+                                        ),
+                                        InlineKeyboardButton(
+                                            text="Вернуться к добавлению товара",
+                                            callback_data=add_item_callback.new()
+                                        )
+                                    ]
+                                ]
+                                )
     )
     await state.reset_state()
 
@@ -195,6 +202,8 @@ def register_admin(dp: Dispatcher):
     dp.register_callback_query_handler(add_item, add_item_callback.filter(), is_admin=True)
     dp.register_callback_query_handler(change_price, text_contains="change", state=NewItem.Confirm, is_admin=True)
     dp.register_callback_query_handler(confirm_price, text_contains="confirm", state=NewItem.Confirm, is_admin=True)
+    dp.register_message_handler(admin_start_deeplink, confirm_cancel_adding.filter(), state="*",
+                                is_admin=True)
     dp.register_message_handler(enter_name, state=NewItem.Name, is_admin=True)
     dp.register_message_handler(enter_photo, state=NewItem.Photo, is_admin=True)
     dp.register_message_handler(enter_description, state=NewItem.Description, is_admin=True)
